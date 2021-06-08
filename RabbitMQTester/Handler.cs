@@ -10,19 +10,32 @@ namespace RabbitMQTester
 {
     public class Handler : IHandleMessages<TestMessage>
     {
-        public Task Handle(TestMessage message, IMessageHandlerContext context)
+        public async Task Handle(TestMessage message, IMessageHandlerContext context)
         {
-            if (message.MillisecondsOfWork > 0)
+            --message.TTL;
+
+            if (message.TTL > 0)
             {
-                try
-                {
-                    var cancellationTokenSource = new CancellationTokenSource(message.MillisecondsOfWork);
-                    WorkHelper.FindPrimeNumbers(cancellationTokenSource.Token);
-                }
-                catch (OperationCanceledException) { }
+                await context.SendLocal(message);
             }
 
-            return Task.CompletedTask;
+            if (message.MillisecondsOfWork > 0)
+            {
+                await Task.Run(() =>
+                {
+                    if (message.MillisecondsOfWork > 0)
+                    {
+                        try
+                        {
+                            var cancellationTokenSource = new CancellationTokenSource(message.MillisecondsOfWork);
+                            WorkHelper.FindPrimeNumbers(cancellationTokenSource.Token);
+                        }
+                        catch (OperationCanceledException)
+                        {
+                        }
+                    }
+                });
+            }
         }
     }
 }

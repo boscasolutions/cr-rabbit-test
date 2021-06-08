@@ -51,7 +51,7 @@ namespace RabbitMQSender
                     services.Configure<SenderOptions>(o =>
                     {
                         if (!int.TryParse(args.FirstOrDefault(), out var n))
-                            n = 100000;
+                            n = 100;
 
                         o.NumberToSend = n;
                     });

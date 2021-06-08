@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration.EnvironmentVariables;
 
 namespace RabbitMQTester
 {
@@ -42,7 +43,9 @@ namespace RabbitMQTester
                     var sqlConnectionString = c.GetConnectionString("SQL");
 
                     var configuration = new EndpointConfiguration(endpointName);
-                    // configuration.LimitMessageProcessingConcurrencyTo(1000);
+
+                    // REVIEW: This uses the default concurrency limit which is number of cores, that is fine as the current task is CPU bound but if the task as IO bound increasing concurrency could be beneficial. But... as we are doing IO when sending audit messages the concurrently limit should be increased too.
+                    configuration.LimitMessageProcessingConcurrencyTo(Environment.ProcessorCount * 4);
 
                     configuration.LicensePath("NsbLicense2019.xml");
                     configuration.EnableInstallers();

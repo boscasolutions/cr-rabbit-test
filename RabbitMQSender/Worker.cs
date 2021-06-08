@@ -30,7 +30,7 @@ namespace RabbitMQSender
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            var message = new TestMessage { MillisecondsOfWork = 0 };
+            var message = new TestMessage { MillisecondsOfWork = 0, TTL = 1000};
 
             await Task.WhenAll(Enumerable.Range(0, _options.NumberToSend).Select(x => MessageSession.Send(message)));
 
