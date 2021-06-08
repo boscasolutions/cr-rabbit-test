@@ -1,0 +1,45 @@
+# Docker
+# Build and push an image to Azure Container Registry
+# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
+
+parameters:
+- name: tag
+  type: string
+  default: 'latest'
+
+trigger:
+- main
+
+resources:
+- repo: self
+
+variables:
+  # Container registry service connection established during pipeline creation
+  dockerRegistryServiceConnection: '60f7b705-77e4-4762-8728-9b9f44c05f5b'
+  rabbitmqtesterImage: 'rabbitmqtester'
+  containerRegistry: 'crossriver.azurecr.io'
+  rabbitmqtesterdockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
+  tag: '$(Build.BuildId)'
+  
+  # Agent VM image name
+  vmImageName: 'ubuntu-latest'
+
+stages:
+- stage: Build
+  displayName: Build and push rabbitmqtester
+  jobs:  
+  - job: Build
+    displayName: Build
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+    - task: Docker@2
+      displayName: Build and push rabbitmqtester
+      inputs:
+        command: buildAndPush
+        repository: $(rabbitmqtesterImage)
+        dockerfile: $(rabbitmqtesterdockerfilePath)
+        containerRegistry: $(dockerRegistryServiceConnection)
+        tags: |
+          $(tag)
+          ${{ parameters.tag }}

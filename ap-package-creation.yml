@@ -1,0 +1,18 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'windows-latest'
+
+resources:
+  repositories:
+  - repository: DevOpsTemplates
+    type: git
+    name: DevOpsTools/DevOpsTemplates
+    ref: refs/heads/v1
+
+steps:
+- template: ap-template-core.yml@DevOpsTemplates
+  parameters:
+    projects: 
+      - folderName: 'RabbitMQTester'
